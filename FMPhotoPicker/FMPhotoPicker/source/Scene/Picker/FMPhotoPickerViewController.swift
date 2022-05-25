@@ -10,7 +10,7 @@ import UIKit
 import Photos
 
 // MARK: - Delegate protocol
-public protocol FMPhotoPickerViewControllerDelegate: class {
+public protocol FMPhotoPickerViewControllerDelegate: AnyObject {
     func fmPhotoPickerController(_ picker: FMPhotoPickerViewController, didFinishPickingPhotoWith photos: [UIImage])
     func fmPhotoPickerController(_ picker: FMPhotoPickerViewController, didFinishPickingPhotoWith assets: [PHAsset])
 }
@@ -77,6 +77,7 @@ public class FMPhotoPickerViewController: UIViewController {
         view.backgroundColor = .white
         initializeViews()
         setupView()
+        setupEvent()
     }
     
     // MARK: - Setup View
@@ -93,6 +94,10 @@ public class FMPhotoPickerViewController: UIViewController {
         self.cancelButton.titleLabel!.font = UIFont.boldSystemFont(ofSize: config.titleFontSize)
         self.doneButton.setTitle(config.strings["picker_button_select_done"], for: .normal)
         self.doneButton.titleLabel!.font = UIFont.boldSystemFont(ofSize: config.titleFontSize)
+    }
+    
+    private func setupEvent() {
+        PHPhotoLibrary.shared().register(self)
     }
     
     @objc private func onTapCancel(_ sender: Any) {
@@ -187,6 +192,14 @@ public class FMPhotoPickerViewController: UIViewController {
                 FMLoadingView.shared.hide()
                 self.delegate?.fmPhotoPickerController(self, didFinishPickingPhotoWith: result)
             }
+        }
+    }
+}
+
+extension FMPhotoPickerViewController: PHPhotoLibraryChangeObserver {
+    public func photoLibraryDidChange(_ changeInstance: PHChange) {
+        DispatchQueue.main.async { [unowned self] in
+            self.fetchPhotos()
         }
     }
 }
