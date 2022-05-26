@@ -77,7 +77,11 @@ public class FMPhotoPickerViewController: UIViewController {
         view.backgroundColor = .white
         initializeViews()
         setupView()
-        setupEvent()
+        setupObserver()
+    }
+    
+    deinit {
+        PHPhotoLibrary.shared().unregisterChangeObserver(self)
     }
     
     // MARK: - Setup View
@@ -96,7 +100,7 @@ public class FMPhotoPickerViewController: UIViewController {
         self.doneButton.titleLabel!.font = UIFont.boldSystemFont(ofSize: config.titleFontSize)
     }
     
-    private func setupEvent() {
+    private func setupObserver() {
         PHPhotoLibrary.shared().register(self)
     }
     
